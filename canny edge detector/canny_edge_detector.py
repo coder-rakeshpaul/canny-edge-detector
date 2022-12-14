@@ -8,6 +8,7 @@ def gaussian_blur(size, sigma=1):
     normal = 1 / (2.0 * np.pi * sigma**2)
     g =  np.exp(-((x**2 + y**2) / (2.0*sigma**2))) * normal
     blur_img = cv2.filter2D(original_image, ddepth=-1,kernel=g )
+
     return blur_img
 
 def sobel(blur_img):
@@ -67,13 +68,13 @@ def nom_max_supression(img_sobel,theta):
 
       else:
         z[i,j]=0     
-
+  
   return z
 
 def double_threshold(img, lowThresholdRatio=0.05, highThresholdRatio=0.09):
     
-    highThreshold = img.max() * highThresholdRatio;
-    lowThreshold = highThreshold * lowThresholdRatio;
+    highThreshold = 40
+    lowThreshold = 15
     
     M, N = img.shape
     res = np.zeros((M,N), dtype=np.int32)
@@ -94,20 +95,18 @@ def hysteresis(img, weak, strong=255):
     for i in range(1, M-1):
         for j in range(1, N-1):
             if (img[i,j] == weak):
-                try:
-                    if ((img[i+1, j-1] == strong) or (img[i+1, j] == strong) or (img[i+1, j+1] == strong)
-                        or (img[i, j-1] == strong) or (img[i, j+1] == strong)
-                        or (img[i-1, j-1] == strong) or (img[i-1, j] == strong) or (img[i-1, j+1] == strong)):
-                        img[i, j] = strong
-                    else:
-                        img[i, j] = 0
-                except IndexError as e:
-                    pass
+                  if ((img[i+1, j-1] == strong) or (img[i+1, j] == strong) or (img[i+1, j+1] == strong)
+                      or (img[i, j-1] == strong) or (img[i, j+1] == strong)
+                      or (img[i-1, j-1] == strong) or (img[i-1, j] == strong) or (img[i-1, j+1] == strong)):
+                      img[i, j] = strong
+                  else:
+                      img[i, j] = 0
+
     return img    
 
 
-original_image = cv2.imread('image.png')
-original_image =  cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)    
+original_image = cv2.imread('input.png')
+original_image =  cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
            
 blur_img =gaussian_blur(5)
 
@@ -116,4 +115,4 @@ nms = nom_max_supression(sobel , theta)
 
 img , weak , strong =  double_threshold(nms)
 output = hysteresis(img , weak , strong)
-cv2.imshow(output)
+cv2.imwrite('output.png',output)
