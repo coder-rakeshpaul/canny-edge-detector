@@ -71,7 +71,7 @@ def nom_max_supression(img_sobel,theta):
   
   return z
 
-def double_threshold(img, lowThresholdRatio=0.05, highThresholdRatio=0.09):
+def double_threshold(img):
     
     highThreshold = 40
     lowThreshold = 15
